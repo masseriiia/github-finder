@@ -2,43 +2,57 @@ import React from 'react';
 import Header from "../components/Header";
 import Hero from "../components/Hero";
 import axios from "axios";
-import { Octokit } from "@octokit/rest";
-
-
+import AppContext from "../components/context";
 
 const Home = () => {
+    const [userData, setUserData] = React.useState('')
+    const [reposData, setReposData] = React.useState([])
+    const [data, setData] = React.useState('')
 
     React.useEffect(() => {
         const fetchData = async () => {
-            const octokit = new Octokit({
-                auth: process.env.REACT_APP_GITHUB_TOKEN
-            })
             try {
-                await octokit.request("GET /user/starred/{owner}/{repo}", {
-                    owner: "github",
-                    repo: "docs",
+                const response = await axios.get(`https://api.github.com/users/maxguuse`, {
                     headers: {
-                        "x-github-api-version": "2022-11-28",
-                    },
-                });
-
-                console.log(`The repository is starred by me`);
-
+                      "Accept": "application/vnd.github+json"
+                  }
+                })
+                setUserData(response.data)
             } catch (error) {
-                if (error.status === 404) {
-                    console.log(`The repository is not starred by me`);
-                } else {
-                    console.error(`An error occurred while checking if the repository is starred: ${error?.response?.data?.message}`);
-                }
+                console.log(`User is not found`)
             }
         }
+        const fetchRepositories = async () => {
+            const response = await axios.get(`https://api.github.com/users/maxguuse/repos`, {
+                headers: {
+                    "Accept": "application/vnd.github+json"
+                }
+            })
+            const repos = response.data
+            setReposData(repos)
+        }
         fetchData()
+        fetchRepositories()
     },[])
+
+    const handleInputChange = (e) => {
+        setData(e.target.value)
+    }
+
+    const contextValue = {
+        userData,
+        reposData,
+        data,
+        setData,
+        handleInputChange
+    };
 
     return (
         <div className="container-header">
             <Header/>
-            <Hero/>
+            <AppContext.Provider value={contextValue}>
+                <Hero/>
+            </AppContext.Provider>
         </div>
     );
 };

@@ -1,57 +1,56 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from "../components/Header";
 import Hero from "../components/Hero";
 import axios from "axios";
 import AppContext from "../components/context";
 
 const Home = () => {
-    const [userData, setUserData] = React.useState('')
-    const [reposData, setReposData] = React.useState([])
-    const [data, setData] = React.useState('')
+    const [userData, setUserData] = useState('');
+    const [responseRep, seResponseRep] = useState([]);
+    const [value, setValue] = useState('');
+    const [filteredRepos, setFilteredRepos] = useState([]);
 
-    React.useEffect(() => {
-        const fetchData = async () => {
+    useEffect(() => {
+        const debounce = setTimeout(async () => {
             try {
-                const response = await axios.get(`https://api.github.com/users/maxguuse`, {
+                const userResponse = await axios.get(`https://api.github.com/users/${value}`, {
                     headers: {
-                      "Accept": "application/vnd.github+json"
-                  }
-                })
-                setUserData(response.data)
+                        "Accept": "application/vnd.github+json"
+                    }
+                });
+                setUserData(userResponse.data);
             } catch (error) {
-                console.log(`User is not found`)
+                console.log(`User is not found`);
             }
-        }
-        const fetchRepositories = async () => {
-            const response = await axios.get(`https://api.github.com/users/maxguuse/repos`, {
-                headers: {
-                    "Accept": "application/vnd.github+json"
-                }
-            })
-            const repos = response.data
-            setReposData(repos)
-        }
-        fetchData()
-        fetchRepositories()
-    },[])
 
-    const handleInputChange = (e) => {
-        setData(e.target.value)
-    }
+            try {
+                const reposResponse = await axios.get(`https://api.github.com/users/${value}/repos`, {
+                    headers: {
+                        "Accept": "application/vnd.github+json"
+                    }
+                });
+                seResponseRep(reposResponse.data);
+            } catch (error) {
+                console.log(`User repositories not found`);
+            }
+        }, 500);
+
+        return () => clearTimeout(debounce);
+    }, [value]);
 
     const contextValue = {
         userData,
-        reposData,
-        data,
-        setData,
-        handleInputChange
+        responseRep,
+        value,
+        setValue,
+        setFilteredRepos
     };
 
     return (
         <div className="container-header">
-            <Header/>
             <AppContext.Provider value={contextValue}>
-                <Hero/>
+                <Header />
+                <Hero />
             </AppContext.Provider>
         </div>
     );

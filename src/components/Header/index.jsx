@@ -5,7 +5,8 @@ import search from "../../img/svg/search.svg"
 import AppContext from "../context";
 
 const Header = () => {
-    const {data, setData, handleInputChange} = React.useContext(AppContext)
+    const {value, setValue} = React.useContext(AppContext)
+
 
     return (
         <header className={Style.header}>
@@ -18,9 +19,9 @@ const Header = () => {
                     <input
                         className={Style.input}
                         type="text"
-                        value={data}
+                        value={value}
                         placeholder="Enter GitHub username"
-                        onChange={e => handleInputChange(e.target.value)}
+                        onChange={e => setValue(e.target.value)}
                     />
                 </div>
             </div>

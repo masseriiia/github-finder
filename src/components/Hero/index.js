@@ -2,10 +2,14 @@ import React from 'react';
 import AppContext from "../../components/context";
 import Style from "./Hero.module.scss"
 import search from "../../img/svg/search.svg"
+import Pagination from "../Pagination";
 
 const Hero = () => {
-    const {userData, responseRep} = React.useContext(AppContext)
+    const {userData, responseRep, reposPerPage, currentPage, setCurrentPage} = React.useContext(AppContext)
 
+    const indexOfLastRepo = (currentPage + 1) * reposPerPage;
+    const indexOfFirstRepo = indexOfLastRepo - reposPerPage;
+    const currentRepos = responseRep.slice(indexOfFirstRepo, indexOfLastRepo);
 
     return (
         <section className={Style.hero}>
@@ -38,9 +42,9 @@ const Hero = () => {
                         <h2 className={Style.heroTitle}>Repositories ({userData.public_repos})</h2>
                         <div className={Style.heroRepositoresItems}>
                             {
-                                responseRep.map((item, index) => (
+                                currentRepos.map((item, index) => (
                                     <div key={index} className={Style.heroRepositor}>
-                                        <h3>{item.name}</h3>
+                                        <h3 className={Style.heroRepositoresName}>{item.name}</h3>
                                         <p>{item.description}</p>
                                     </div>
                                 ))
@@ -51,6 +55,10 @@ const Hero = () => {
                     </div>
                 </div>
             }
+            <Pagination
+                pageCount={Math.ceil(responseRep.length / reposPerPage)}
+                onPageChange={(selectedPage) => setCurrentPage(selectedPage.selected)}
+            />
         </section>
     );
 };

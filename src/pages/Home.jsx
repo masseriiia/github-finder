@@ -3,12 +3,16 @@ import Header from "../components/Header";
 import Hero from "../components/Hero";
 import axios from "axios";
 import AppContext from "../components/context";
+import ReactPaginate from 'react-paginate';
+import Pagination from "../components/Pagination";
 
 const Home = () => {
     const [userData, setUserData] = useState('');
     const [responseRep, seResponseRep] = useState([]);
     const [value, setValue] = useState('');
     const [filteredRepos, setFilteredRepos] = useState([]);
+    const [currentPage, setCurrentPage] = useState(0)
+    const [reposPerPage] = useState(7)
 
     useEffect(() => {
         const debounce = setTimeout(async () => {
@@ -43,7 +47,10 @@ const Home = () => {
         responseRep,
         value,
         setValue,
-        setFilteredRepos
+        setFilteredRepos,
+        reposPerPage,
+        currentPage,
+        setCurrentPage
     };
 
     return (
